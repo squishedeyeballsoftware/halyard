@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - run: yarn install -g pnpm
+      - run: yarn global add pnpm
 
       # The yarn commands need to be in sync with the Dockerfile. (minus the yarn del)
       - run: git rev-parse --verify HEAD
