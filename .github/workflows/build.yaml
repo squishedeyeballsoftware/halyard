@@ -32,7 +32,7 @@ jobs:
       - run: pnpm unit-tests
 
       # UI Tests
-      - run: xvfb-run --auto-servernum yarn functional-ui-tests
+#      - run: xvfb-run --auto-servernum yarn functional-ui-tests
 
       # Functional Tests: Needs a database, keep run and env statements together!
       - run: docker run -d -p 27017-27019:27017-27019 --name mongodb mongo:4.4.0
