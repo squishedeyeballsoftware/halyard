@@ -1,9 +1,8 @@
-name: develop
+name: package
 on:
   push:
     branches:
-      - develop
-      - anvil
+      - main
 jobs:
   build:
     if: "!startsWith(github.event.commits[0].message, 'chore(release):')"
