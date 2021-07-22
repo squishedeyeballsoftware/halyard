@@ -4,6 +4,9 @@ jest.mock('express', () => {
         return {
             use: jest.fn(),
             get: jest.fn(),
+            post: jest.fn(),
+            put: jest.fn(),
+            delete: jest.fn(),
             listen: listenMock,
         }
     }
@@ -40,8 +43,8 @@ jest.mock('http', () => {
 const http = require('http')
 
 const cors = require('cors')
-const {MongoClient, Server, connectMock, closeMock } = require('mongodb')
-const { app, databaseConnectCallback, getHandler, serviceHandler, echoURL, version, mongoURL } = require('./server')
+const { MongoClient, Server, connectMock, closeMock } = require('mongodb')
+const { app, databaseConnectCallback, pingHandler, sailsHandler, getHandler, serviceHandler, echoURL, version, mongoURL } = require('./server')
 
 describe('Halyard Backend: server.js', () => {
     const originalLog = console.log
@@ -58,7 +61,9 @@ describe('Halyard Backend: server.js', () => {
     }
     const SOME_HOSTNAME = 'localhost'
     const SOME_PORT = '27017'
+    const ANOTHER_PORT = '3000'
     process.env.HALYARD_DATABASE = `mongodb://${SOME_HOSTNAME}:${SOME_PORT}`
+    process.env.HALYARD_API_PORT = ANOTHER_PORT
 
     test('Server Starts on load.', () => {
         expect(app.use).toBeCalled()
@@ -69,7 +74,7 @@ describe('Halyard Backend: server.js', () => {
 
         expect(app.get).toBeCalledWith('/api', expect.any(Function))
         // expect(app.listen).toBeCalledWith(3000, 'localhost', expect.any(Function))
-        expect(app.listen).toBeCalledWith(3000, expect.any(Function))
+        expect(app.listen).toBeCalledWith('3000', expect.any(Function))
         expect(cors).toBeCalledWith({origin: '*'})
     })
 
@@ -80,7 +85,7 @@ describe('Halyard Backend: server.js', () => {
 
         const mongodbState2 = databaseConnectCallback(SOME_ERROR)
         expect(mongodbState2).toEqual(`Bummer - unable to connected to the Halyard database: mongodb://` +
-        `${SOME_HOSTNAME}:${SOME_PORT}, Connect Error: ${SOME_ERROR.message}`)
+        `${SOME_HOSTNAME}:${SOME_PORT}, Connect Error: ${SOME_ERROR.message}.`)
     })
 
     test('getHandler', () => {
@@ -98,7 +103,7 @@ describe('Halyard Backend: server.js', () => {
         readErrorHandler(SOME_ERROR)
         expect(response.send).toBeCalledWith(
             {
-                'data': `${version} </br></br> ${'Bummer - unable to connected to the Halyard database: ' + mongoURL + ', Connect Error: error'}</br></br> Echo Service Error: ${SOME_ERROR.message}`
+                'data': `${version} </br></br> ${'Bummer - unable to connected to the Halyard database: ' + mongoURL + ', Connect Error: error.'}</br></br> Echo Service Error: ${SOME_ERROR.message}`
             })
 
         const SOME_RESPONSE = {
@@ -116,17 +121,48 @@ describe('Halyard Backend: server.js', () => {
         onDataCallback(SOME_CHUNK_2)
         onEndCallback()
         const data = SOME_CHUNK_1+SOME_CHUNK_2
-        expect(response.send).toBeCalledWith({data: `${version} </br></br>${'Bummer - unable to connected to the Halyard database: ' + mongoURL + ', Connect Error: error'} </br></br> Echo Service Response: ${
+        expect(response.send).toBeCalledWith({data: `${version} </br></br>${'Bummer - unable to connected to the Halyard database: ' + mongoURL + ', Connect Error: error.'} </br></br> Echo Service Response: ${
                 data.replace(/[\n\r]/g,'</br>')
             }`})
 
     })
 
     test('serviceHandler', () => {
+        jest.resetAllMocks()
         serviceHandler()
-        expect(console.log).toHaveBeenNthCalledWith(1,
-            `Bummer - unable to connected to the Halyard database: mongodb://${SOME_HOSTNAME}:${SOME_PORT}`)
-        expect(console.log).toHaveBeenNthCalledWith(2, SOME_ERROR)
-        // expect(console.log).toHaveBeenNthCalledWith(3, 'listening on 3000')
+        expect(console.log).toHaveBeenNthCalledWith(1, "listening on "+ANOTHER_PORT)
+        expect(console.log).toHaveBeenNthCalledWith(2, "version ", "Version 1.0")
+    })
+
+    test('pingHandler', () => {
+        const SOME_REQUEST = {}
+        const response = {
+            send: jest.fn(),
+        }
+        pingHandler(SOME_REQUEST, response)
+        expect(response.send).toBeCalledWith({
+            'data': `Halyard-Backend: ${version}`
+        })
+    })
+
+    test('sailsHandler down', () => {
+        const SOME_REQUEST = {}
+        const response = {
+            send: jest.fn(),
+        }
+        sailsHandler(SOME_REQUEST, response)
+        expect(response.send).toBeCalledWith('down')
+    })
+    test('sailsHandler up', () => {
+        jest.resetModules()
+        const SOME_REQUEST = {}
+        const response = {
+            send: jest.fn(),
+        }
+        process.env.HALYARD_VERSION = '2'
+        const { sailsHandler } = require('./server')
+
+        sailsHandler(SOME_REQUEST, response)
+        expect(response.send).toBeCalledWith('up')
     })
 })

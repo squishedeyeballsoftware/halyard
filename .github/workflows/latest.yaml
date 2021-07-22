@@ -1,0 +1,33 @@
+name: latest
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Log in to registry
+        run: docker login -u ${{ secrets.DOCKER_HUB_USER }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Tag release as latest
+        run: |
+          export USER=$(git log --pretty=format:'%D' HEAD^2 | grep 'tag: ' | head -n1 | sed 's@tag: @@' | sed 's@,.*@@')
+          docker-compose pull
+          docker images | grep c6o | awk '{ print $1 }' | xargs -I{} docker tag {}:$USER {}:latest
+          export USER=latest
+          docker-compose push
+      - name: Deploy latest to codezero.io
+        env:
+          GCLOUD_KEY: ${{ secrets.GCLOUD_PRODUCTION_KEY }}
+        run: |
+          echo "$GCLOUD_KEY" | base64 --decode > ${HOME}/gcloud.json
+          gcloud auth activate-service-account --key-file=${HOME}/gcloud.json
+          gcloud container clusters get-credentials hub --zone us-central1-c --project c6o-production
+          export TAG=$(git log --pretty=format:'%D' HEAD^2 | grep 'tag: ' | head -n1 | sed 's@tag: @@' | sed 's@,.*@@')
+          kubectl -n c6o-hub set image deploy/hub-server hub-server=c6oio/hub-server:$TAG
+          kubectl -n c6o-hub set image deploy/hub-web hub-web=c6oio/hub-web:$TAG
+          kubectl -n c6o-hub set image deploy/hub-dockyard hub-dockyard=c6oio/hub-dockyard:$TAG

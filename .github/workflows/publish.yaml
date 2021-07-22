@@ -1,0 +1,41 @@
+name: publish
+on:
+  workflow_dispatch:
+    inputs:
+      flags:
+        description: Publish flags s, k, u, p and b. b = build, s = hub+system, k = kubeclient, u = ui, p = provisioners
+        default: -bs
+        required: true
+      bump:
+        description: Increment by 'major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'
+        default: patch
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.TRAXITT_NARAYAN_PAT }}
+          fetch-depth: 0
+          submodules: true
+      - name: Build on nodejs 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.TRAXITT_NARAYAN_PAT }}
+          NPM_TOKEN: ${{ secrets.NARAYAN_NPM_TOKEN }}
+          NPM_CONFIG_PREFIX: "~/.npm-global"
+        run: |
+          # https://github.com/lerna/lerna/issues/2404
+          echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > ~/.npmrc
+          git config --global user.name 'github-actions-bot'
+          git config --global user.email 'github-actions-bot@codezero.io'
+          # https://github.com/azu/lerna-monorepo-github-actions-release/blob/master/.github/workflows/publish.yml
+          # The following doesn't seem to be needed but may be needed for sub-module publishing
+          # git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/$GITHUB_REPOSITORY
+          sudo npm install -g del-cli yarn-workspace-isolator lerna npm-check-updates typescript
+          ./build/publish.sh ${{ github.event.inputs.flags }} ${{ github.event.inputs.bump }}

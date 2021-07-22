@@ -1,0 +1,61 @@
+name: canary
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.TRAXITT_NARAYAN_PAT }}
+          submodules: true
+      - name: Log in to docker registry
+        run: docker login -u ${{ secrets.DOCKER_HUB_USER }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Build and push images
+        run: |
+          export USER=$(echo $GITHUB_SHA | cut -c 1-7)
+          export C6O_VERSION=${GITHUB_REF#"refs/tags/"}
+
+          docker build -t c6oio/node-monorepo:$USER .
+          docker-compose build
+          docker-compose push
+
+          export USER=dragon
+          docker build -t c6oio/node-monorepo:$USER .
+          docker-compose build
+          docker-compose push
+
+          export USER=canary
+          docker build -t c6oio/node-monorepo:$USER .
+          docker-compose build
+          docker-compose push
+
+          export USER=$C6O_VERSION
+          docker build -t c6oio/node-monorepo:$USER .
+          docker-compose build
+          docker-compose push
+      - name: Deploy dragon to develop.codezero.io
+        env:
+          GCLOUD_KEY: ${{ secrets.GCLOUD_DEVELOP_KEY }}
+        run: |
+          echo "$GCLOUD_KEY" | base64 --decode > ${HOME}/gcloud.json
+          gcloud auth activate-service-account --key-file=${HOME}/gcloud.json
+          gcloud container clusters get-credentials hub --zone us-central1-c --project traxitt-development
+          export TAG=$(echo $GITHUB_SHA | cut -c 1-7)
+          kubectl -n c6o-hub set image deploy/hub-server hub-server=c6oio/hub-server:$TAG
+          kubectl -n c6o-hub set image deploy/hub-web hub-web=c6oio/hub-web:$TAG
+          kubectl -n c6o-hub set image deploy/hub-dockyard hub-dockyard=c6oio/hub-dockyard:$TAG
+      - name: Deploy canary to staging.codezero.io
+        env:
+          GCLOUD_KEY: ${{ secrets.GCLOUD_STAGING_KEY }}
+        run: |
+          echo "$GCLOUD_KEY" | base64 --decode > ${HOME}/gcloud.json
+          gcloud auth activate-service-account --key-file=${HOME}/gcloud.json
+          gcloud container clusters get-credentials hub --zone us-central1-c --project traxitt-staging
+          export TAG=${GITHUB_REF#"refs/tags/"}
+          kubectl -n c6o-hub set image deploy/hub-server hub-server=c6oio/hub-server:$TAG
+          kubectl -n c6o-hub set image deploy/hub-web hub-web=c6oio/hub-web:$TAG
+          kubectl -n c6o-hub set image deploy/hub-dockyard hub-dockyard=c6oio/hub-dockyard:$TAG

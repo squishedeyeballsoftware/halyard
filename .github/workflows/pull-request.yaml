@@ -1,0 +1,63 @@
+name: pull-request
+on: pull_request
+jobs:
+  build:
+    if: "!contains(github.event.commits[0].message, '[skip]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+          submodules: true
+      
+      # Check for which packages have changes in this PR
+#      - name: Check packages
+#        id: changes
+#        uses: conneryn/packages-changed@v0.1.2
+
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Build on nodejs 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: yarn install -g pnpm
+      # The functional ui tests require xvfb for the headless browser.
+#      - run: sudo apt-get install xvfb
+#      - run: export DISPLAY=':99.0'
+#      - run: Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      # the yarn commands need to be in sync with the Dockerfile. (minus the yarn del)
+      - run: git rev-parse --verify HEAD
+      # Install and Build
+      - run: pnpm install --unsafe-perm
+      - run: pnpm build
+      # Unit Tests
+      - run: pnpm unit-tests
+      # UI Tests
+      - run: xvfb-run --auto-servernum yarn functional-ui-tests
+      # Functional tests: Needs a database, keep run and env statements together!
+#      - run: docker run -d -p 27017-27019:27017-27019 --name mongodb mongo:4.4.0
+      - run: pnpm functional-tests
+#        env:
+#          HUB_MONGODB_TEST_URL: mongodb://127.0.0.1:27017/traxitt-hub-test
+#          STRIPE_SECRET_TOKEN: ${{ secrets.TEST_STRIPE_SECRET_TOKEN }}
+      # Integration tests: Needs a database (started before the functional tests. Keep run and env statements together!
+      - run: pnpm integration-tests
+#        env:
+#          HUB_MONGODB_TEST_URL: mongodb://127.0.0.1:27017/traxitt-hub-test
+#          STRIPE_SECRET_TOKEN: ${{ secrets.TEST_STRIPE_SECRET_TOKEN }}
+
+#      - name: Check CLI is installable
+#        if: ${{ contains(steps.changes.outputs.pkgs, '@c6o/cli') }}
+#        working-directory: packages/tools/cli
+#        run: |
+#          # Pack and install CLI
+#          yarn pack --filename ./cli.tgz
+#          npm install -g ./cli.tgz
+#
+#          # Sanity check CLI using version command
+#          czctl version
+

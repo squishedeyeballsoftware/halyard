@@ -1,0 +1,51 @@
+name: publish-cli
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Increment by 'major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'
+        default: patch
+        required: true
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.TRAXITT_NARAYAN_PAT }}
+          fetch-depth: 0
+          submodules: true
+      - name: Build on nodejs 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.TRAXITT_NARAYAN_PAT }}
+          NPM_TOKEN: ${{ secrets.NARAYAN_NPM_TOKEN }}
+          NPM_CONFIG_PREFIX: "~/.npm-global"
+        run: |
+          # https://github.com/lerna/lerna/issues/2404
+          echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > ~/.npmrc
+          git config --global user.name 'github-actions-bot'
+          git config --global user.email 'github-actions-bot@codezero.io'
+
+          yarn install
+          yarn build
+          (
+              cd packages/tools/cli
+
+              # Format version tag
+              yarn config set version-tag-prefix "cli-v"
+
+              # Bump version
+              yarn version --${{ github.event.inputs.bump }}
+              git push
+              git push --tags
+
+              # Pack and publish
+              yarn pack --filename cli.tgz
+              npm publish cli.tgz
+          )
