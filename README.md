@@ -208,7 +208,7 @@ export USER=latest
 docker build --tag halyard-database:1.5 ./halyard-database
 docker build --tag halyard-backend:1.5 ./halyard-backend
 docker build --tag halyard-sockets:1.5 ./halyard-sockets
-docker build --tag halyard-frontend:1.5 ./halyard-frontend
+docker build --tag halyard-frontend:1.6 ./halyard-frontend
 docker build --tag halyard-sails:1.5 ./halyard-frontend
 ```
 
@@ -217,7 +217,7 @@ docker build --tag halyard-sails:1.5 ./halyard-frontend
 ```bash
 docker build --tag robblovell/halyard-backend:1.5 --platform linux/amd64 ./halyard-backend --no-cache
 docker build --tag robblovell/halyard-sockets:1.5 --platform linux/amd64 ./halyard-sockets --no-cache
-docker build --tag robblovell/halyard-frontend:1.5 --platform linux/amd64 ./halyard-frontend -f ./halyard-frontend/Dockerfile.confgMap
+docker build --tag robblovell/halyard-frontend:1.6 --platform linux/amd64 ./halyard-frontend -f ./halyard-frontend/Dockerfile.confgMap
 docker build --tag robblovell/halyard-sails:1.5 --platform linux/amd64 ./halyard-sails -f ./halyard-sails/Dockerfile.confgMap
 ```
 Other architectures:
