@@ -7,11 +7,12 @@ A project for experimenting with developer productivity.
 The project contains a minimum set of features for experimentation with CodeZero's Teleport and Intercept debugging tools:
 
 * 1 Front Ends
-  * halyard-frontend
-* 3 Back Ends
+  * halyard-frontend (one that works with the headless service, the other not)
+* 4 Back Ends
   * halyard-backend
   * halyard-sockets
   * echo-server from git@github.com:robblovell/echo-server.git that builds the docker container: robblovell/echo-server:2.2
+  * halyard-headless
 * Database
   * halyard-database from a mongodb container
 
@@ -34,6 +35,25 @@ Second, deploy the project to a Kubernetes cluster so that you have a remote sys
 ```bash
 kubeclt create namespace halyard
 kubectl apply -n halyard -f ./k8s 
+```
+
+Third, deploy the headless version of the frontend and the headless service. 
+This is done in two steps, first installing the services and deployments in the k8s-headless directory,
+second, getting the ip addresses of the pods, updating the endpoints ip addresses 
+in the k8s-headless-endpoings/halyard-headless-endpoints.yaml to refelct these values.
+
+```bash
+kk apply -n halyard -f ./k8s-headless
+kk get -n halyard pods -o wide | grep headless
+halyard-headless-5867684f46-5h95b   1/1     Running   0          4m4s    10.244.0.108   kittens-worker-pool-85h89   <none>           <none>
+halyard-headless-5867684f46-9q2wl   1/1     Running   0          4m4s    10.244.1.9     kittens-worker-pool-85h8z   <none>           <none>
+vi k8s-headless-endpoints/halyard-headless-endpoints.yaml
+```
+
+then:
+
+```bash
+kk apply -n halyard -f ./k8s-headless-endpoints
 ```
 
 ### Teleport
@@ -211,6 +231,8 @@ docker build --tag halyard-sockets:1.5 ./halyard-sockets
 docker build --tag halyard-frontend:1.6 ./halyard-frontend
 docker build --tag halyard-sails:1.5 ./halyard-frontend
 ```
+
+(note halyard headless uses the echo server container)
 
 #### building from an M1 machine for remote systems:
 
