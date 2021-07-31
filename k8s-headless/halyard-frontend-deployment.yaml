@@ -31,11 +31,6 @@ data:
             proxy_pass http://halyard-headless;
           }
 
-          location / {
-              root   /usr/share/nginx/html;
-              index  index.html index.htm;
-          }
-
           location ^~ /api {
               # requests from the public faccing app to the API server are routed here.
               proxy_pass http://halyard-backend;
@@ -58,6 +53,11 @@ data:
               proxy_http_version 1.1;
               proxy_set_header Upgrade $http_upgrade;
               proxy_set_header Connection "upgrade";
+          }
+
+          location / {
+              root   /usr/share/nginx/html;
+              index  index.html index.htm;
           }
 
           error_page   500 502 503 504  /50x.html;
@@ -92,7 +92,7 @@ spec:
     spec:
       containers:
         - name: halyard-frontend
-          image: robblovell/halyard-frontend:1.6
+          image: robblovell/halyard-frontend:latest
           imagePullPolicy: Always
           env:
             - name: HALYARD_API_HOST

@@ -4,8 +4,8 @@ metadata:
   name: halyard-headless
 subsets:
   - addresses:
-      - ip: 10.244.0.108
-      - ip: 10.244.1.9
+      - ip: 10.244.0.43
+      - ip: 10.244.0.55
     ports:
       - name: echo
         port: 8080
