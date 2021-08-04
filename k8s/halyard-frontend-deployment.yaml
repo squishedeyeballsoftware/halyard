@@ -30,6 +30,10 @@ data:
               proxy_pass http://halyard-backend;
           }
 
+          location ^~ /outside {
+              proxy_pass http://halyard-backend;
+          }
+
           location ^~ /sockets {
               # matches any query beginning with /api/ and halts searching
               # proxy api requests to the upstream server declared above

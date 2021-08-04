@@ -13,6 +13,6 @@ services:
     build:
       context: ./halyard-frontend
   halyard-sails:
-    image: robblovell/halyard-demo-sails:$USER
+    image: robblovell/halyard-sails:$USER
     build:
       context: ./halyard-sails

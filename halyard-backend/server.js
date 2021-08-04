@@ -11,10 +11,11 @@ const mongoDB = new URL(mongoURL);
 const version = process.env.HALYARD_VERSION || 'Version 1.1';
 const mongoClient = new MongoClient(new Server(mongoDB.hostname, mongoDB.port));
 const pguser = process.env.PGUSER || 'root';
-const pghost = process.env.PGHOST || 'halyard-headless-ext';
+const pghost = process.env.PGHOST || 'halyard-headless-ext-postgres';
 const pgpass = process.env.PGPASSWORD || 'Macro7!';
 const pgdata = process.env.PGDATABASE || 'postgres';
 const pgport = process.env.PGPORT || 5432;
+const outsideURL = process.env.OUTSIDEHOST || 'halyard-headless-ext';
 const app = express();
 app.use(cors({
     origin: '*'
@@ -77,6 +78,30 @@ const getHandler = (req, res) => {
     http.get(echoURL, readHandler).on("error", readErrorHandler);
     return { readHandler, readErrorHandler };
 };
+const outsideHandler = (req, res) => {
+    console.log("Request: ", req.headers);
+    let retVal = '';
+    const readHandler = (resp) => {
+        let data = '';
+        resp.on('data', (chunk) => {
+            data += chunk;
+        });
+        resp.on('end', () => {
+            retVal = `${version} </br></br> Outside Service Response: ${data.replace(/[\n\r]/g, '</br>')}`;
+            res.send({
+                'data': retVal
+            });
+        });
+    };
+    const readErrorHandler = (err) => {
+        retVal = `${version}  </br></br> Outside Service Error: ${err.message}`;
+        res.send({
+            'data': retVal
+        });
+    };
+    http.get(outsideURL, readHandler).on("error", readErrorHandler);
+    return { readHandler, readErrorHandler };
+};
 const pingHandler = (req, res) => {
     console.log("Ping Request: ", req.headers);
     res.send({
@@ -94,6 +119,7 @@ app.post('/ping', pingHandler);
 app.put('/ping', pingHandler);
 app.delete('/ping', pingHandler);
 app.get('/sails', sailsHandler);
+app.get('/outside', outsideHandler);
 const serviceHandler = function () {
     console.log('listening on ' + backendAPIPort);
     console.log('version ', version);

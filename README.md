@@ -225,11 +225,11 @@ export USER=latest
 
 #### manual builds:
 ```bash
-docker build --tag halyard-database:1.5 ./halyard-database
-docker build --tag halyard-backend:1.5 ./halyard-backend
-docker build --tag halyard-sockets:1.5 ./halyard-sockets
-docker build --tag halyard-frontend:1.6 ./halyard-frontend
-docker build --tag halyard-sails:1.5 ./halyard-frontend
+docker build --tag halyard-database:latest ./halyard-database
+docker build --tag halyard-backend:latest ./halyard-backend
+docker build --tag halyard-sockets:latest ./halyard-sockets
+docker build --tag halyard-frontend:latest ./halyard-frontend
+docker build --tag halyard-sails:latest ./halyard-frontend
 ```
 
 (note halyard headless uses the echo server container)
@@ -237,10 +237,10 @@ docker build --tag halyard-sails:1.5 ./halyard-frontend
 #### building from an M1 machine for remote systems:
 
 ```bash
-docker build --tag robblovell/halyard-backend:1.5 --platform linux/amd64 ./halyard-backend --no-cache
-docker build --tag robblovell/halyard-sockets:1.5 --platform linux/amd64 ./halyard-sockets --no-cache
-docker build --tag robblovell/halyard-frontend:1.6 --platform linux/amd64 ./halyard-frontend -f ./halyard-frontend/Dockerfile.confgMap
-docker build --tag robblovell/halyard-sails:1.5 --platform linux/amd64 ./halyard-sails -f ./halyard-sails/Dockerfile.confgMap
+docker build --tag robblovell/halyard-backend:latest --platform linux/amd64 ./halyard-backend --no-cache
+docker build --tag robblovell/halyard-sockets:latest --platform linux/amd64 ./halyard-sockets --no-cache
+docker build --tag robblovell/halyard-frontend:latest --platform linux/amd64 ./halyard-frontend -f ./halyard-frontend/Dockerfile.confgMap
+docker build --tag robblovell/halyard-sails:latest --platform linux/amd64 ./halyard-sails -f ./halyard-sails/Dockerfile.confgMap
 ```
 Other architectures:
 ```bash
@@ -250,28 +250,28 @@ Other architectures:
 #### build for running on M1:
 
 ```bash
-docker build --tag robblovell/halyard-backend:1.5 --platform linux/arm64 ./halyard-backend --no-cache
-docker build --tag robblovell/halyard-sockets:1.5 --platform linux/arm64 ./halyard-sockets --no-cache
-docker build --tag robblovell/halyard-frontend-local:1.5 --platform linux/arm64 ./halyard-frontend -f ./halyard-frontend/Dockerfile
-docker build --tag robblovell/halyard-sails-local:1.5 --platform linux/arm64 ./halyard-sails -f ./halyard-sails/Dockerfile
+docker build --tag robblovell/halyard-backend:latest --platform linux/arm64 ./halyard-backend --no-cache
+docker build --tag robblovell/halyard-sockets:latest --platform linux/arm64 ./halyard-sockets --no-cache
+docker build --tag robblovell/halyard-frontend-local:latest --platform linux/arm64 ./halyard-frontend -f ./halyard-frontend/Dockerfile
+docker build --tag robblovell/halyard-sails-local:latest --platform linux/arm64 ./halyard-sails -f ./halyard-sails/Dockerfile
 ```
 
 ### Publishing
 
 ```bash
-docker push robblovell/halyard-backend:1.5
-docker push robblovell/halyard-sockets:1.5
-docker push robblovell/halyard-frontend:1.5
-docker push robblovell/halyard-sails:1.5
+docker push robblovell/halyard-backend:latest
+docker push robblovell/halyard-sockets:latest
+docker push robblovell/halyard-frontend:latest
+docker push robblovell/halyard-sails:latest
 ```
 
 ### publish to docker hub
 
 ```bash
-docker tag e3053bf8c609 robblovell/halyard-backend:1.5
-docker tag f2cf0963cccd robblovell/halyard-frontend:1.5
-docker push robblovell/halyard-backend:1.5
-docker push robblovell/halyard-frontend:1.5
+docker tag e3053bf8c609 robblovell/halyard-backend:latest
+docker tag f2cf0963cccd robblovell/halyard-frontend:latest
+docker push robblovell/halyard-backend:latest
+docker push robblovell/halyard-frontend:latest
 etc.
 ```
 

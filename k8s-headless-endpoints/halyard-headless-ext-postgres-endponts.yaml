@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: halyard-headless-ext
+  name: halyard-headless-ext-postgres
 subsets:
   - addresses:
-      - ip: 174.138.113.137
+      - ip: 157.230.68.162
     ports:
       - protocol: TCP
-        port: 80
+        port: 5432
 
