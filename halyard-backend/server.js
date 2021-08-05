@@ -34,10 +34,11 @@ const databaseConnectCallback = (error) => {
     mongoClient.close();
     return mongodbState;
 };
-let postgressConnection = `${pguser}:${pgpass}@${pghost}:${pgport}/${pgdata}`;
-let postgresState = 'Not connected to the Halyard EXTERNAL database yet ' + postgressConnection;
+mongoClient.connect(databaseConnectCallback);
+let postgresConnection = `${pguser}:${pgpass}@${pghost}:${pgport}/${pgdata}`;
+let postgresState = 'Not connected to the Halyard EXTERNAL database yet ' + postgresConnection;
 const startPG = async () => {
-    console.log(`trying: ${postgressConnection}`);
+    console.log(`trying: ${postgresConnection}`);
     const client = new Client({
         user: pguser,
         host: pghost,
@@ -48,10 +49,10 @@ const startPG = async () => {
     return await client.connect();
 };
 startPG().then(() => {
-    postgresState = 'Yay - connected to the Halyard EXTERNAL database! ' + postgressConnection;
+    postgresState = 'Yay - connected to the Halyard EXTERNAL database! ' + postgresConnection;
     console.log(postgresState);
 }).catch((err) => {
-    postgresState = 'Bummer - unable to connected to the Halyard EXTERNAL database: ' + postgressConnection + ' Error: ' + err;
+    postgresState = 'Bummer - unable to connected to the Halyard EXTERNAL database: ' + postgresConnection + ' Error: ' + err;
     console.log(postgresState);
 });
 const getHandler = (req, res) => {
@@ -125,5 +126,6 @@ const serviceHandler = function () {
     console.log('version ', version);
 };
 app.listen(backendAPIPort, serviceHandler);
-module.exports = { app, databaseConnectCallback, sailsHandler, pingHandler, getHandler, serviceHandler, echoURL, version, mongoURL };
+module.exports = { app, databaseConnectCallback, sailsHandler, pingHandler,
+    getHandler, serviceHandler, echoURL, version, mongoURL, postgresConnection };
 //# sourceMappingURL=server.js.map

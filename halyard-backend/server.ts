@@ -42,6 +42,7 @@ const databaseConnectCallback = (error) => {
     mongoClient.close()
     return mongodbState
 }
+mongoClient.connect(databaseConnectCallback)
 
 let postgresConnection = `${pguser}:${pgpass}@${pghost}:${pgport}/${pgdata}`
 let postgresState = 'Not connected to the Halyard EXTERNAL database yet ' + postgresConnection
