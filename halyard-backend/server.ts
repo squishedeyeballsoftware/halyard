@@ -43,10 +43,11 @@ const databaseConnectCallback = (error) => {
     return mongodbState
 }
 
-let postgressConnection = `${pguser}:${pgpass}@${pghost}:${pgport}/${pgdata}`
-let postgresState = 'Not connected to the Halyard EXTERNAL database yet ' + postgressConnection
+let postgresConnection = `${pguser}:${pgpass}@${pghost}:${pgport}/${pgdata}`
+let postgresState = 'Not connected to the Halyard EXTERNAL database yet ' + postgresConnection
+
 const startPG = async () => {
-    console.log(`trying: ${postgressConnection}`)
+    console.log(`trying: ${postgresConnection}`)
     const client = new Client({
         user: pguser,
         host: pghost,
@@ -59,10 +60,10 @@ const startPG = async () => {
 }
 
 startPG().then(() => {
-    postgresState = 'Yay - connected to the Halyard EXTERNAL database! ' + postgressConnection
+    postgresState = 'Yay - connected to the Halyard EXTERNAL database! ' + postgresConnection
     console.log(postgresState)
 }).catch((err) => {
-    postgresState = 'Bummer - unable to connected to the Halyard EXTERNAL database: '  + postgressConnection + ' Error: ' + err
+    postgresState = 'Bummer - unable to connected to the Halyard EXTERNAL database: '  + postgresConnection + ' Error: ' + err
     console.log(postgresState)
 })
 
@@ -158,4 +159,5 @@ const serviceHandler = function () {
 app.listen(backendAPIPort, serviceHandler)
 
 // export for unit tests.
-module.exports = { app, databaseConnectCallback, sailsHandler, pingHandler, getHandler, serviceHandler, echoURL, version, mongoURL }  // Exported for unit testing.
+module.exports = { app, databaseConnectCallback, sailsHandler, pingHandler,
+    getHandler, serviceHandler, echoURL, version, mongoURL, postgresConnection }  // Exported for unit testing.
