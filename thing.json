@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "name": "halyard-headless-86d4c78c48-mggdt",
+    "namespace": "halyard"
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "halyard-headless",
+        "ports": [{ "containerPort": 8080, "protocol": "TCP" }]
+      }
+    ]
+  }
+}
+

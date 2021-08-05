@@ -1,4 +1,4 @@
-name: canary
+name: promote
 on:
   push:
     tags:

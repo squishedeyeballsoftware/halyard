@@ -7,11 +7,12 @@ A project for experimenting with developer productivity.
 The project contains a minimum set of features for experimentation with CodeZero's Teleport and Intercept debugging tools:
 
 * 1 Front Ends
-  * halyard-frontend
-* 3 Back Ends
+  * halyard-frontend (one that works with the headless service, the other not)
+* 4 Back Ends
   * halyard-backend
   * halyard-sockets
   * echo-server from git@github.com:robblovell/echo-server.git that builds the docker container: robblovell/echo-server:2.2
+  * halyard-headless
 * Database
   * halyard-database from a mongodb container
 
@@ -34,6 +35,25 @@ Second, deploy the project to a Kubernetes cluster so that you have a remote sys
 ```bash
 kubeclt create namespace halyard
 kubectl apply -n halyard -f ./k8s 
+```
+
+Third, deploy the headless version of the frontend and the headless service. 
+This is done in two steps, first installing the services and deployments in the k8s-headless directory,
+second, getting the ip addresses of the pods, updating the endpoints ip addresses 
+in the k8s-headless-endpoings/halyard-headless-endpoints.yaml to refelct these values.
+
+```bash
+kk apply -n halyard -f ./k8s-headless
+kk get -n halyard pods -o wide | grep headless
+halyard-headless-5867684f46-5h95b   1/1     Running   0          4m4s    10.244.0.108   kittens-worker-pool-85h89   <none>           <none>
+halyard-headless-5867684f46-9q2wl   1/1     Running   0          4m4s    10.244.1.9     kittens-worker-pool-85h8z   <none>           <none>
+vi k8s-headless-endpoints/halyard-headless-endpoints.yaml
+```
+
+then:
+
+```bash
+kk apply -n halyard -f ./k8s-headless-endpoints
 ```
 
 ### Teleport
@@ -205,20 +225,22 @@ export USER=latest
 
 #### manual builds:
 ```bash
-docker build --tag halyard-database:1.5 ./halyard-database
-docker build --tag halyard-backend:1.5 ./halyard-backend
-docker build --tag halyard-sockets:1.5 ./halyard-sockets
-docker build --tag halyard-frontend:1.5 ./halyard-frontend
-docker build --tag halyard-sails:1.5 ./halyard-frontend
+docker build --tag halyard-database:latest ./halyard-database
+docker build --tag halyard-backend:latest ./halyard-backend
+docker build --tag halyard-sockets:latest ./halyard-sockets
+docker build --tag halyard-frontend:latest ./halyard-frontend
+docker build --tag halyard-sails:latest ./halyard-frontend
 ```
+
+(note halyard headless uses the echo server container)
 
 #### building from an M1 machine for remote systems:
 
 ```bash
-docker build --tag robblovell/halyard-backend:1.5 --platform linux/amd64 ./halyard-backend --no-cache
-docker build --tag robblovell/halyard-sockets:1.5 --platform linux/amd64 ./halyard-sockets --no-cache
-docker build --tag robblovell/halyard-frontend:1.5 --platform linux/amd64 ./halyard-frontend -f ./halyard-frontend/Dockerfile.confgMap
-docker build --tag robblovell/halyard-sails:1.5 --platform linux/amd64 ./halyard-sails -f ./halyard-sails/Dockerfile.confgMap
+docker build --tag robblovell/halyard-backend:latest --platform linux/amd64 ./halyard-backend --no-cache
+docker build --tag robblovell/halyard-sockets:latest --platform linux/amd64 ./halyard-sockets --no-cache
+docker build --tag robblovell/halyard-frontend:latest --platform linux/amd64 ./halyard-frontend -f ./halyard-frontend/Dockerfile.confgMap
+docker build --tag robblovell/halyard-sails:latest --platform linux/amd64 ./halyard-sails -f ./halyard-sails/Dockerfile.confgMap
 ```
 Other architectures:
 ```bash
@@ -228,28 +250,28 @@ Other architectures:
 #### build for running on M1:
 
 ```bash
-docker build --tag robblovell/halyard-backend:1.5 --platform linux/arm64 ./halyard-backend --no-cache
-docker build --tag robblovell/halyard-sockets:1.5 --platform linux/arm64 ./halyard-sockets --no-cache
-docker build --tag robblovell/halyard-frontend-local:1.5 --platform linux/arm64 ./halyard-frontend -f ./halyard-frontend/Dockerfile
-docker build --tag robblovell/halyard-sails-local:1.5 --platform linux/arm64 ./halyard-sails -f ./halyard-sails/Dockerfile
+docker build --tag robblovell/halyard-backend:latest --platform linux/arm64 ./halyard-backend --no-cache
+docker build --tag robblovell/halyard-sockets:latest --platform linux/arm64 ./halyard-sockets --no-cache
+docker build --tag robblovell/halyard-frontend-local:latest --platform linux/arm64 ./halyard-frontend -f ./halyard-frontend/Dockerfile
+docker build --tag robblovell/halyard-sails-local:latest --platform linux/arm64 ./halyard-sails -f ./halyard-sails/Dockerfile
 ```
 
 ### Publishing
 
 ```bash
-docker push robblovell/halyard-backend:1.5
-docker push robblovell/halyard-sockets:1.5
-docker push robblovell/halyard-frontend:1.5
-docker push robblovell/halyard-sails:1.5
+docker push robblovell/halyard-backend:latest
+docker push robblovell/halyard-sockets:latest
+docker push robblovell/halyard-frontend:latest
+docker push robblovell/halyard-sails:latest
 ```
 
 ### publish to docker hub
 
 ```bash
-docker tag e3053bf8c609 robblovell/halyard-backend:1.5
-docker tag f2cf0963cccd robblovell/halyard-frontend:1.5
-docker push robblovell/halyard-backend:1.5
-docker push robblovell/halyard-frontend:1.5
+docker tag e3053bf8c609 robblovell/halyard-backend:latest
+docker tag f2cf0963cccd robblovell/halyard-frontend:latest
+docker push robblovell/halyard-backend:latest
+docker push robblovell/halyard-frontend:latest
 etc.
 ```
 

@@ -1,0 +1,45 @@
+name: build
+on: pull_request
+jobs:
+  build:
+    if: "!contains(github.event.commits[0].message, '[skip]')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+          submodules: true
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Build on nodejs 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      # Add pnpm
+      - run: yarn global add pnpm
+      - run: git rev-parse --verify HEAD
+
+      # Install and Build
+      - run: pnpm install --unsafe-perm
+      - run: pnpm build
+
+      # Unit Tests
+      - run: pnpm unit-tests
+
+      # Functional Tests: Needs a database, keep run and env statements together!
+      - run: docker run -d -p 27017-27019:27017-27019 --name mongodb mongo:4.4.0
+      - run: pnpm functional-tests
+        env:
+          HUB_MONGODB_TEST_URL: mongodb://127.0.0.1:27017/traxitt-hub-test
+
+      # Integration Tests: Needs a database (started before the functional tests. Keep run and env statements together!
+      - run: pnpm integration-tests
+        env:
+          HUB_MONGODB_TEST_URL: mongodb://127.0.0.1:27017/traxitt-hub-test
+
+
