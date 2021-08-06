@@ -4,8 +4,8 @@ metadata:
   name: halyard-headless-ext
 subsets:
   - addresses:
-      - ip: 174.138.113.137
+      - ip: 10.244.0.41
     ports:
       - protocol: TCP
-        port: 80
+        port: 3000
 
