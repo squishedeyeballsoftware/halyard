@@ -20,9 +20,9 @@ spec:
           imagePullPolicy: IfNotPresent # IfNotPresent for production
           env:
             - name: LISTEN
-              value: ":3000"
+              value: ":25060"
             - name: TALK
-              value: "10.244.0.41:3000"
+              value: "165.227.218.43:25060"
           ports:
             - name: test-proxy
-              containerPort: 3000
+              containerPort: 25060
