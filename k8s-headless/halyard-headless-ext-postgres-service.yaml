@@ -5,7 +5,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 5432
+    - port: 25060
       protocol: TCP
   sessionAffinity: None
   clusterIP: None
