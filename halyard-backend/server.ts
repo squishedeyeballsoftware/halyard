@@ -70,9 +70,14 @@ const startPG = async () => {
     try {
         await client.connect()
     } catch (error) {
-        postgresState = 'Yay - connected to the Halyard EXTERNAL database: ' + postgresConnection2 + ' but with error: ' + error;
-
-        console.log("Connect warning PG: ", error)
+        // Hack ahead.
+        if (error.message === 'self signed certificate in certificate chain')  {
+            postgresState = 'Yay - connected to the Halyard EXTERNAL database: ' + postgresConnection2 + ' but with error: ' + error;
+            console.log("Connected PG 1")
+        }
+        else {
+            console.log("Connect warning PG: ", error)
+        }
     }
 }
 
@@ -80,7 +85,6 @@ startPG().then(() => {
     postgresState = 'Yay - connected to the Halyard EXTERNAL database! ' + postgresConnection;
     console.log(postgresState);
 }).catch((err) => {
-
     postgresState = 'Bummer - unable to connected to the Halyard EXTERNAL database: ' + postgresConnection + ' Error: ' + err;
     console.log(postgresState);
 })
@@ -99,10 +103,17 @@ const startPG2 = async () => {
     try {
         await client.connect()
     } catch (error) {
-        postgresState2 = 'Yay - connected to the Halyard EXTERNAL database: ' + postgresConnection + ' but with error: ' + error;
+        // Hack ahead.
+        if (error.message === 'The server does not support SSL connections')  {
+            postgresState = 'Yay - connected to the Halyard EXTERNAL database: ' + postgresConnection2 + ' but with error: ' + error;
+            console.log("Connected PG 2")
+        }
+        else {
+            console.log("Connect warning PG: ", error)
+        }
 
-        console.log("Connect warning PG 2: ", error)
-    }}
+    }
+}
 startPG2().then(() => {
     postgresState2 = 'Yay - connected to the Halyard EXTERNAL database outside! ' + postgresConnection2;
     console.log(postgresState2);
