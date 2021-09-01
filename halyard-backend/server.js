@@ -58,7 +58,6 @@ const startPG = async () => {
         await client.connect();
     }
     catch (error) {
-        console.log("ERROR:: 1 ::", JSON.stringify(error));
         if (error.message === 'self signed certificate in certificate chain') {
             postgresState = 'Yay - connected to the Halyard EXTERNAL database: ' + postgresConnection2 + ' but with error: ' + error;
             console.log("Connected PG 1");
@@ -89,7 +88,6 @@ const startPG2 = async () => {
         await client.connect();
     }
     catch (error) {
-        console.log("ERROR:: 2 ::", JSON.stringify(error));
         if (error.message === 'The server does not support SSL connections') {
             postgresState = 'Yay - connected to the Halyard EXTERNAL database: ' + postgresConnection2 + ' but with error: ' + error;
             console.log("Connected PG 2");

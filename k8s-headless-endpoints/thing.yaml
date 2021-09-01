@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nfs-server
+  namespace: outside
+  labels:
+    'system.codezero.io/session': 'c102496ce29a597d59003c5a2db45151751f152a'
+data:
+  exports: |
+    /mnt *(fsid=0,rw,async,no_subtree_check,no_auth_nlm,insecure,all_squash,anonuid=0,anongid=0)
+    /config *(,async,no_subtree_check,no_auth_nlm,insecure,all_squash,anonuid=0,anongid=0)
+    /tv *(,async,no_subtree_check,no_auth_nlm,insecure,all_squash,anonuid=0,anongid=0)
+    /downloads *(,async,no_subtree_check,no_auth_nlm,insecure,all_squash,anonuid=0,anongid=0)

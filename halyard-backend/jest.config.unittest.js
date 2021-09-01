@@ -9,7 +9,7 @@ module.exports = {
         ['jest-html-reporters', {
             'publicPath': './coverage',
             'filename': 'report.html',
-            'expand': false
+            'expand': true
         }]
     ],
     setupFiles: ['<rootDir>/jestsetup.js'],

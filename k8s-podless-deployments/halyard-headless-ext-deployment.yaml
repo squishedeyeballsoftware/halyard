@@ -22,7 +22,7 @@ spec:
             - name: LISTEN
               value: ":25060"
             - name: TALK
-              value: "165.227.218.43:25060"
+              value: "138.197.142.164:25060"
           ports:
             - name: test-proxy
               containerPort: 25060

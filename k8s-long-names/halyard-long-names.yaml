@@ -1,0 +1,23 @@
+decoy-postgres-charli-development-5432-charli-app-web-21141220-development
+
+charli-app-web-21141220-development
+-a content-service-28396040-development
+-a charli-accessory-ahs-21639662-development
+-a charli-activities-21610935-development
+-a charli-activities-py-21636013-development
+-a charli-conversation-21610961-development
+-a charli-keycloak-development
+-a charli-media-21610972-development
+-a charli-nlu-21610973-development
+-a charli-plan-21610975-development
+-a charli-train-21610981-development
+-a charli-user-23177085-development
+-a charli-workflow-21612799-development
+-a email-service-24904462-development
+-a file-service-23895426-development
+-a google-service-24880669-development
+-a invite-service-26948599-development
+-a notification-service-27472659-development
+-a share-service-27055390-development
+-a postgres-charli-development
+-a default development

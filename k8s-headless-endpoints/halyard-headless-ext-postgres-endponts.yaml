@@ -4,7 +4,7 @@ metadata:
   name: halyard-headless-ext-postgres
 subsets:
   - addresses:
-      - ip: 143.198.38.16
+      - ip: 138.197.142.164
     ports:
       - protocol: TCP
         port: 25060
